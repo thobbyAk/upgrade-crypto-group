@@ -1,5 +1,6 @@
 const { expect } = require("chai");
 let { catchRevert } = require("./exceptionHelpers.js");
+const { ethers, waffle } = require("hardhat");
 
 let cryptoGroup_V2;
 
@@ -18,30 +19,46 @@ describe("cryptoGroup_V2", function () {
 	// Test case
 	it("set owner of the contract", async function () {
 		// Store a value
-		await cryptoGroup_V2.createOwner(owner);
+		let CryptoGroup_V2 = await ethers.getContractFactory("CryptoGroup_V2");
+		let cryptoGroup_V2 = await CryptoGroup_V2.deploy();
+		await cryptoGroup_V2.deployed();
+		const accounts = await ethers.getSigners();
+
+		await cryptoGroup_V2.createOwner(accounts[0].address);
 
 		// Test if the returned value is the same one
-		expect(await cryptoGroup_V2.retrieveOwner()).to.equal(owner);
+		expect(await cryptoGroup_V2.retrieveOwner()).to.equal(accounts[0].address);
 	});
 
 	it("should send token to an address", async function () {
-		await cryptoGroup_V2.createOwner(owner);
-		await cryptoGroup_V2.sendToken(user, tokenAmount, {
-			from: owner,
+		let CryptoGroup_V2 = await ethers.getContractFactory("CryptoGroup_V2");
+		let cryptoGroup_V2 = await CryptoGroup_V2.deploy();
+		await cryptoGroup_V2.deployed();
+		const accounts = await ethers.getSigners();
+
+		await cryptoGroup_V2.createOwner(accounts[0].address);
+		await cryptoGroup_V2.sendToken(accounts[1].address, tokenAmount, {
+			from: accounts[0].address,
 			value: excessAmountToken,
 		});
 
-		var getUserBalance = await web3.eth.getBalance(user);
+		const provider = waffle.provider;
+
+		var getUserBalance = await provider.getBalance(accounts[1].address);
 		console.log("current user balance", getUserBalance);
-		expect(getUserBalance).to.greaterThanOrEqual(tokenAmount);
+		expect(parseInt(getUserBalance)).to.greaterThanOrEqual(parseInt(tokenAmount));
 	});
 	it("should only allow admin to send Token", async function () {
-		await cryptoGroup_V2.createOwner(owner);
-		await catchRevert(
-			cryptoGroup_V2.sendToken(user, tokenAmount, {
-				from: user,
-				value: excessAmountToken,
-			})
-		);
+		let CryptoGroup_V2 = await ethers.getContractFactory("CryptoGroup_V2");
+		let cryptoGroup_V2 = await CryptoGroup_V2.deploy();
+		await cryptoGroup_V2.deployed();
+		const accounts = await ethers.getSigners();
+
+		await cryptoGroup_V2.createOwner(accounts[0].address);
+		await expect(
+			cryptoGroup_V2
+				.connect(accounts[1])
+				.sendToken(accounts[2].address, tokenAmount)
+		).to.be.revertedWith("caller must be an admin");
 	});
 });

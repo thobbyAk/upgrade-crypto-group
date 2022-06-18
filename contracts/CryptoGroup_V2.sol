@@ -13,6 +13,10 @@ contract CryptoGroup_V2 {
         owner = newOwner;
     }
 
+    function retrieveOwner() public view returns (address) {
+        return owner;
+    }
+
     modifier onlyOwner(address _address) {
         require(_address == owner, "caller must be an admin");
         _;

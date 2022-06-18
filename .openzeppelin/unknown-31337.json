@@ -1,0 +1,38 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    "txHash": "0xd7c0ecd9ab500e20af8f126c96b71573c79c37159fb20f7a27640cfda8c252e7"
+  },
+  "proxies": [
+    {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "txHash": "0x3f12341e355f029dedba26b0febbd3bdc7a919aeb37a3f179df75ea5ee9ac32b",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "6a47ffe6ad6bc6d344233c39c34b072fc62a577d3819ff88d60587091a10c38c": {
+      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "txHash": "0x30186e04fecdbb301ae75952041072321566c453225466009c166ab1f51769f4",
+      "layout": {
+        "storage": [
+          {
+            "label": "owner",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "CryptoGroup_V1",
+            "src": "contracts/CryptoGroup_V1.sol:7"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          }
+        }
+      }
+    }
+  }
+}

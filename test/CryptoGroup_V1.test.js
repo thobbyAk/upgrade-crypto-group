@@ -1,38 +1,48 @@
 const { expect } = require("chai");
 const { BN } = require("@openzeppelin/test-helpers");
-const CryptoGroup_V1 = artifacts.require("./contracts/CryptoGroup_V1");
+const { ethers, waffle } = require("hardhat");
 
-contract("cryptoGroup_V1 (proxy)", function (accounts) {
-	console.log("accounts", accounts);
-	const [adminOwner, userAccount, anotherAccount] = accounts;
-	const tokenAmount = "200";
-	const excessAmountToken = "200000000";
-
+describe("cryptoGroup_V1 (proxy)", function () {
 	beforeEach(async function () {
-		CryptoGroup_V1 = await ethers.getContractFactory("CryptoGroup_V1");
-		cryptoGroup_V1 = await cryptoGroup_V1.deploy();
+		// const CryptoGroup_V1 = await ethers.getContractFactory("CryptoGroup_V1");
+		let CryptoGroup_V1 = await ethers.getContractFactory("CryptoGroup_V1");
+		let cryptoGroup_V1 = await CryptoGroup_V1.deploy();
 		await cryptoGroup_V1.deployed();
 	});
 
 	// Test case
 	it("set owner of the contract", async function () {
 		// Store a value
-		await cryptoGroup_V1.createOwner(adminOwner);
+		let CryptoGroup_V1 = await ethers.getContractFactory("CryptoGroup_V1");
+		let cryptoGroup_V1 = await CryptoGroup_V1.deploy();
+		await cryptoGroup_V1.deployed();
+		const accounts = await ethers.getSigners();
+
+		await cryptoGroup_V1.createOwner(accounts[0].address);
 
 		// Test if the returned value is the same one
-		expect(await cryptoGroup_V1.retrieveOwner()).to.equal(adminOwner);
+		expect(await cryptoGroup_V1.retrieveOwner()).to.equal(accounts[0].address);
 	});
 
 	it("should send token to an address", async function () {
-		await cryptoGroup_V1.createOwner(adminOwner);
-		await cryptoGroup_V1.sendToken(userAccount, tokenAmount, {
-			from: adminOwner,
+		const tokenAmount = "200";
+		const excessAmountToken = "200000000";
+
+		let CryptoGroup_V1 = await ethers.getContractFactory("CryptoGroup_V1");
+		let cryptoGroup_V1 = await CryptoGroup_V1.deploy();
+		await cryptoGroup_V1.deployed();
+		const accounts = await ethers.getSigners();
+		await cryptoGroup_V1.createOwner(accounts[0].address);
+		await cryptoGroup_V1.sendToken(accounts[1].address, tokenAmount, {
+			from: accounts[0].address,
 			value: excessAmountToken,
 		});
 
-		var getUserBalance = await web3.eth.getBalance(userAccount);
+		const provider = waffle.provider;
+
+		var getUserBalance = await provider.getBalance(accounts[1].address);
 		console.log("current user balance", getUserBalance);
-		expect(getUserBalance).to.greaterThanOrEqual(tokenAmount);
+		expect(parseInt(getUserBalance)).to.greaterThanOrEqual(parseInt(tokenAmount));
 	});
 });
 
